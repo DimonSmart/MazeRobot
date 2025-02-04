@@ -1,4 +1,5 @@
 ﻿using DimonSmart.MazeGenerator;
+using MazeRobot;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,22 +9,27 @@ namespace MazeDemo
 {
     class Program
     {
-        const int XSize = 10;
-        const int YSize = 10;
-        static Maze<Cell> _maze = new Maze<Cell>(XSize, YSize);
+        const int XSize = 9;
+        const int YSize = 9;
 
         static async Task Main(string[] args)
         {
+            var kernel = GetKernel();
+
+            var arguments = new KernelArguments { { "label", "label" } };
+            var result = await kernel.InvokeAsync("MazeRobot", "LookForward", arguments);
+            Console.WriteLine(result);
+            Console.ReadLine();
+
             var mazePlotter = new MazeConsolePlotter();
-            var options = new MazeBuildOptions(0, 0);
-            var mazeBuilder = new MazeBuilder(_maze, options);
+            var options = new MazeBuildOptions(100, 100);
+            var maze = new Maze<Cell>(XSize, YSize);
+            var mazeBuilder = new MazeBuilder(maze, options);
             await mazeBuilder.BuildAsync(mazePlotter);
 
-            var robot = new Robot(_maze, 1, 1);
+            var robot = new Robot(maze, 1, 1);
 
-
-
-            var mazeEnvironment = new MazeEnvironment(_maze, robot);
+            var mazeEnvironment = new MazeEnvironment(maze, robot);
             var mazeRobotFunctions = new MazeRobotFunctions(mazeEnvironment);
 
             Console.WriteLine($"Начальное положение робота: ({robot.X}, {robot.Y})");
@@ -40,15 +46,12 @@ namespace MazeDemo
 
         private static Kernel GetKernel()
         {
-            // Загружаем конфигурацию, если требуется (например, для ключей API)
             var configuration = new ConfigurationBuilder()
                 .AddUserSecrets<Program>()
                 .Build();
 
-            // Создаем билдера кернела
             var builder = Kernel.CreateBuilder();
 
-            // Пример: добавляем модель через Ollama (или другой компонент)
             var httpClient = new HttpClient
             {
                 BaseAddress = new Uri("http://localhost:11434"),
@@ -62,32 +65,22 @@ namespace MazeDemo
                 serviceId: "ollama"
             );
 
-            // Добавляем логирование
             builder.Services.AddLogging(c =>
                 c.AddConsole().SetMinimumLevel(LogLevel.Trace));
 
-            // Собираем кернел
-            var kernel = builder.Build();
-
-            // Создаем лабиринт и робота.
-            // Используем, например, библиотеку DimonSmart.MazeGenerator для создания лабиринта.
-            var mazePlotter = new MazeConsolePlotter();
+            // Регистрируем необходимые зависимости
             var maze = new Maze<Cell>(10, 10);
+            var mazePlotter = new MazeConsolePlotter();
             var options = new MazeBuildOptions(0, 0);
             var mazeBuilder = new MazeBuilder(maze, options);
-
             mazeBuilder.Build(mazePlotter);
             var robot = new Robot(maze, 1, 1);
-
-            // Создаем среду, которая инкапсулирует лабиринт и робота.
             var mazeEnvironment = new MazeEnvironment(maze, robot);
 
-            // Создаем плагин с функциями робота.
-            var mazeRobotFunctions = new MazeRobotFunctions(mazeEnvironment);
+            builder.Services.AddSingleton(mazeEnvironment);
+            builder.Plugins.AddFromType<MazeRobotFunctions>("MazeRobot");
 
-            // Регистрируем плагин в кернеле с именем "MazeRobot"
-           // kernel.CreateFunctionFromMethod(mazeRobotFunctions, "MazeRobot");
-
+            var kernel = builder.Build();
             return kernel;
         }
     }
