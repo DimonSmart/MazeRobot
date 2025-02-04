@@ -1,18 +1,14 @@
-﻿namespace MazeDemo
-{
-    using DimonSmart.MazeGenerator;
+﻿using DimonSmart.MazeGenerator;
 
-    public class MazeConsolePlotter : IMazePlotter, IWavePlotter, IPathPlotter
+namespace MazeRobot
+{
+    public class MazeConsolePlotter : IMazePlotter
     {
         // On some monitors this character printed as not visible
         // so we need a trick with foreground and background colors
         private const string Wall = "▓▓";
 
-        // Skip 1 for skip black
-        private static readonly ConsoleColor[] colors = ((ConsoleColor[])Enum.GetValues(typeof(ConsoleColor))).Skip(1)
-            .ToArray();
-
-        public TimeSpan WallDrawDelay { get; } = TimeSpan.FromMilliseconds(25);
+        public TimeSpan WallDrawDelay { get; set; } = TimeSpan.FromMilliseconds(25);
 
         void IMazePlotter.PlotWall(int x, int y)
         {
@@ -29,23 +25,6 @@
             Console.BackgroundColor = ConsoleColor.Black;
             Console.SetCursorPosition(x * 2, y);
             Console.WriteLine(Wall);
-        }
-
-        public void PlotPath(int x, int y, int waveNumber, CancellationToken cancellationToken)
-        {
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.BackgroundColor = ConsoleColor.DarkYellow;
-            Console.SetCursorPosition(x * 2, y);
-            Console.WriteLine($"{waveNumber:00}");
-        }
-
-        void IWavePlotter.PlotWave(int x, int y, int waveNumber, CancellationToken cancellationToken)
-        {
-            Console.ForegroundColor = colors[waveNumber % colors.Length];
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(x * 2, y);
-            Console.WriteLine($"{waveNumber:00}");
-            Thread.Sleep(WallDrawDelay);
         }
     }
 }

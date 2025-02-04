@@ -21,7 +21,8 @@ namespace MazeDemo
             Console.WriteLine(result);
             Console.ReadLine();
 
-            var mazePlotter = new MazeConsolePlotter();
+            /*
+            var mazePlotter = new MazeConsolePlotter() { WallDrawDelay = TimeSpan.Zero };
             var options = new MazeBuildOptions(100, 100);
             var maze = new Maze<Cell>(XSize, YSize);
             var mazeBuilder = new MazeBuilder(maze, options);
@@ -42,6 +43,7 @@ namespace MazeDemo
             robot.MarkCell();
             Console.WriteLine("Клетка, в которой находится робот, отмечена.");
             Console.ReadLine();
+            */
         }
 
         private static Kernel GetKernel()
@@ -68,9 +70,8 @@ namespace MazeDemo
             builder.Services.AddLogging(c =>
                 c.AddConsole().SetMinimumLevel(LogLevel.Trace));
 
-            // Регистрируем необходимые зависимости
-            var maze = new Maze<Cell>(10, 10);
-            var mazePlotter = new MazeConsolePlotter();
+            var maze = new Maze<Cell>(XSize, YSize);
+            var mazePlotter = new MazeConsolePlotter() { WallDrawDelay = TimeSpan.Zero };
             var options = new MazeBuildOptions(0, 0);
             var mazeBuilder = new MazeBuilder(maze, options);
             mazeBuilder.Build(mazePlotter);
