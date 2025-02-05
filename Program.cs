@@ -14,6 +14,12 @@ namespace MazeDemo
 
         static async Task Main(string[] args)
         {
+            ConsoleHelper.Initialize(100, 30);
+
+
+
+
+
             var kernel = GetKernel();
 
             var arguments = new KernelArguments { { "label", "label" } };
