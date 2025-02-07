@@ -11,14 +11,19 @@ namespace MazeRobot
         private bool _isWall;
 
         /// <summary>
-        /// Allows marking the cell (e.g., by a robot).
+        /// Cell was discovered by the robot.
         /// </summary>
-        public bool Marked { get; set; }
+        public bool Discovered { get; set; }
 
         /// <summary>
         /// Returns a textual description of the cell.
         /// </summary>
-        public string Description => _isWall ? "Wall" : "Path";
+        public string Description => _isWall ? "Wall" : string.IsNullOrEmpty(Treasure) ? "Path" : $"Path, {Treasure}";
+
+        /// <summary>
+        /// Property to store treasure information in the cell.
+        /// </summary>
+        public string Treasure { get; set; }
 
         /// <summary>
         /// Constructor. By default, the cell is not a wall and not marked.
@@ -26,7 +31,8 @@ namespace MazeRobot
         public Cell()
         {
             _isWall = false;
-            Marked = false;
+            Discovered = false;
+            Treasure = string.Empty; // Initialize Treasure with an empty string
         }
 
         /// <summary>

@@ -3,14 +3,13 @@ using MazeRobot; // Подключение пакета для генераци�
 
 namespace MazeDemo
 {
-    // Класс робота, который перемещается по лабиринту
+    // Class representing a robot that moves through the maze
     public class Robot
     {
-        // Текущие координаты робота в лабиринте
+        // Current coordinates of the robot in the maze
         public int X { get; private set; }
         public int Y { get; private set; }
 
-        // Ссылка на лабиринт, в котором перемещается робот
         public Maze<Cell> Maze { get; }
 
         public Robot(Maze<Cell> maze, int startX, int startY)
@@ -20,14 +19,6 @@ namespace MazeDemo
             Y = startY;
         }
 
-        // Методы для наблюдения за клетками в разных направлениях.
-        // Для простоты считаем, что робот всегда смотрит "вверх".
-        public Cell LookForward() => Maze[X, Y - 1];  // вперед – вверх (y-1)
-        public Cell LookLeft() => Maze[X - 1, Y];  // влево – (x-1)
-        public Cell LookRight() => Maze[X + 1, Y];  // вправо – (x+1)
-        public Cell LookBackward() => Maze[X, Y + 1];  // назад – вниз (y+1)
-
-        // Методы перемещения робота на одну клетку
         public void MoveForward()
         {
             if (CanMoveTo(X, Y - 1))
@@ -57,22 +48,31 @@ namespace MazeDemo
             }
         }
 
-        // Метод, позволяющий роботу отметить текущую клетку (например, "мелком")
-        public void MarkCell()
-        {
-            var cell = Maze[X, Y];
-            cell.Marked = true; // Предполагается, что у Cell есть свойство Marked
-        }
 
-        // Приватный метод проверки, можно ли перейти в заданную клетку
+        // Method to mark all 9 cells around the robot as discovered
+        public void LookAround()
+        {
+            for (var dx = -1; dx <= 1; dx++)
+            {
+                for (var dy = -1; dy <= 1; dy++)
+                {
+                    var newX = X + dx;
+                    var newY = Y + dy;
+                    if (newX >= 0 && newX < Maze.Width && newY >= 0 && newY < Maze.Height)
+                    {
+                        Maze[newX, newY].Discovered = true;
+                    }
+                }
+            }
+        }
+       
         private bool CanMoveTo(int newX, int newY)
         {
-            // Проверка границ лабиринта
-            if (newX < 0 || newX >= Maze.Width || newY < 0 || newY >= Maze.Height)
+            if (!Maze.AreCoordinatesValid(newX, newY))
             {
-                return false;
+                throw new ArgumentException("Invalid coordinates (mode diag)");
             }
-            // Здесь можно добавить дополнительную проверку (например, наличие стены)
+
             return !Maze.IsWall(newX, newY);
         }
     }

@@ -8,12 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DimonSmart.MazeGenerator" Version="1.24817.745" />
+    <PackageReference Include="DimonSmart.MazeGenerator" Version="1.25207.1243" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.1" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.35.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.35.0-alpha" />
-    <PackageReference Include="Microsoft.SemanticKernel.Experimental.Orchestration.Flow" Version="1.35.0-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.36.1" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.36.1-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel.Experimental.Orchestration.Flow" Version="1.36.1-alpha" />
   </ItemGroup>
 
 </Project>

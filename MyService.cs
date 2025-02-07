@@ -1,13 +1,51 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel;
+
 
 namespace MazeRobot
 {
     public class MyService : IMyService
     {
         private readonly ILogger<MyService> _logger;
-        public MyService(ILogger<MyService> logger) => _logger = logger;
-        public void DoWork() => _logger.LogInformation("IMyService is working.");
+        private readonly Kernel _kernel;
+
+        public MyService(ILogger<MyService> logger, Kernel kernel)
+        {
+            _logger = logger;
+            _kernel = kernel;
+        }
+
+        public async Task<string> DoWork(string command)
+        {
+            _logger.LogInformation("Processing command: {command}", command);
+
+            string systemPrompt = @"
+You are a chatbot capable of controlling a robot in a maze.
+The robot understands and can execute the following commands: move forward, move backward, move left, and move right.
+For simplicity, assume that:
+ - Moving right increases the X-coordinate by 1 (X = X + 1).
+ - Moving forward decreases the Y-coordinate by 1 (Y = Y - 1).
+ - Moving backward increases the Y-coordinate by 1 (Y = Y + 1).
+The robot cannot pass through walls.
+When issued the 'look around' command, the robot surveys the 3x3 grid centered on itself.
+In the grid:
+  '?' indicates an unexplored cell.
+  'X' indicates a wall.
+  '_' indicates an open passage.
+  'Robot' indicates the robot's current position.
+  Any discovered object (e.g., 'apple') is labeled with its name.
+Once a cell is discovered, it remains visible permanently.
+";
+
+            // Combine system prompt with the user's command.
+            string prompt = $"{systemPrompt}\nUser: {command}\nChatbot:";
+
+            // Call the semantic kernel to process the prompt.
+            // (Assuming _kernel.RunAsync(string) returns the generated response.)
+            // Assuming _kernel is an instance of Kernel
+            var result = await _kernel.InvokePromptAsync(prompt);
+            string response = result.ToString();
+            return response;
+        }
     }
-
-
 }

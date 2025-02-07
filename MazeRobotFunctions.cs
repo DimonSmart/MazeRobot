@@ -7,28 +7,26 @@ namespace MazeDemo
     {
         private readonly MazeEnvironment _env;
 
-        // Конструктор принимает экземпляр среды, содержащей лабиринт и робота.
+        // Constructor accepts an instance of the environment containing the maze and the robot.
         public MazeRobotFunctions(MazeEnvironment env)
         {
             _env = env;
         }
 
         /// <summary>
-        /// Позволяет роботу осмотреть клетку впереди и возвращает описание этой клетки.
+        /// Allows the robot to inspect the cell ahead and returns a description of that cell.
         /// </summary>
-        /// <param name="context">Контекст Semantic Kernel, содержащий входные данные (если необходимо).</param>
-        /// <returns>Описание клетки, находящейся впереди.</returns>
-
+        /// <param name="context">Semantic Kernel context containing input data (if necessary).</param>
+        /// <returns>Description of the cell ahead.</returns>
         [KernelFunction("LookForward"), Description("Returns the description of the cell directly in front of the robot.")]
-        public async Task<string> LookForwardAsync(KernelArguments context)
+        public async Task<string> LookAroundAsync(KernelArguments context)
         {
-            // Доступ к роботу через _env
-            var cell = _env.Robot.LookForward();
-            return cell.Description;
+            _env.Robot.LookAround();
+            return _env.Maze.MakeDiscoveredMazePartView();
         }
 
         /// <summary>
-        /// Перемещает робота вправо.
+        /// Moves the robot to the right.
         /// </summary>
         [KernelFunction("MoveRight"), Description("Moves the robot one cell to the right if possible.")]
         public async Task<string> MoveRightAsync(KernelArguments context)
@@ -37,16 +35,8 @@ namespace MazeDemo
             return $"Robot moved to ({_env.Robot.X}, {_env.Robot.Y}).";
         }
 
-        /// <summary>
-        /// Делает отметку в текущей клетке, где находится робот.
-        /// </summary>
-        [KernelFunction("MarkCell"), Description("Marks the current cell where the robot is located.")]
-        public async Task<string> MarkCellAsync(KernelArguments context)
-        {
-            _env.Robot.MarkCell();
-            return "Current cell marked.";
-        }
+     
 
-        // Можно добавить другие функции: LookLeft, MoveForward, MoveBackward и т.д.
+        // Additional functions can be added: LookLeft, MoveForward, MoveBackward, etc.
     }
 }

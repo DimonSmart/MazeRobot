@@ -2,8 +2,6 @@
 {
     public interface IMyService
     {
-        void DoWork();
+        Task<string> DoWork(string command);
     }
-
-
 }
