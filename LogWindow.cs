@@ -1,4 +1,6 @@
-﻿namespace MazeRobot
+﻿using System.Text;
+
+namespace MazeRobot
 {
     public static class LogWindow
     {
@@ -14,16 +16,39 @@
             }
         }
 
+        // Helper method to expand tab characters based on the current column position.
+        // Each tab advances to the next multiple of tabSize.
+        private static string ExpandTabs(string input, int tabSize)
+        {
+            var result = new StringBuilder();
+            int currentColumn = 0;
+            foreach (char c in input)
+            {
+                if (c == '\t')
+                {
+                    int spacesToAdd = tabSize - (currentColumn % tabSize);
+                    result.Append(new string(' ', spacesToAdd));
+                    currentColumn += spacesToAdd;
+                }
+                else
+                {
+                    result.Append(c);
+                    currentColumn++;
+                }
+            }
+            return result.ToString();
+        }
+
         private static void Render()
         {
-            var totalWidth = Console.WindowWidth;
-            var totalHeight = Console.WindowHeight;
-            var regionX = totalWidth / 2;
-            var regionWidth = totalWidth - regionX;
-            var regionHeight = totalHeight;
+            int totalWidth = Console.WindowWidth;
+            int totalHeight = Console.WindowHeight;
+            int regionX = totalWidth / 2;
+            int regionWidth = totalWidth - regionX;
+            int regionHeight = totalHeight;
 
             // Draw vertical separator
-            for (var y = 0; y < totalHeight; y++)
+            for (int y = 0; y < totalHeight; y++)
             {
                 Console.SetCursorPosition(totalWidth / 2 - 1, y);
                 Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -31,24 +56,51 @@
             }
 
             // Clear the right region
-            for (var y = 0; y < regionHeight; y++)
+            for (int y = 0; y < regionHeight; y++)
             {
                 Console.SetCursorPosition(regionX, y);
                 Console.Write(new string(' ', regionWidth));
             }
 
-            var start = Math.Max(0, _entries.Count - regionHeight);
-            var line = 0;
-            for (var i = start; i < _entries.Count; i++)
+            // Format all log entries into individual lines taking into account line breaks and tab expansion
+            var formattedLines = new List<(ConsoleColor Color, string Line)>();
+
+            foreach (var entry in _entries)
             {
-                var entry = _entries[i];
-                Console.SetCursorPosition(regionX, line);
-                Console.ForegroundColor = entry.Color;
-                var msg = entry.Message.Length > regionWidth
-                    ? entry.Message.Substring(0, regionWidth)
-                    : entry.Message.PadRight(regionWidth);
-                Console.Write(msg);
-                line++;
+                // Split the message into lines by newline characters
+                var rawLines = entry.Message.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+                foreach (var rawLine in rawLines)
+                {
+                    // Expand tab characters properly based on the current column position (tab stops)
+                    var line = ExpandTabs(rawLine, 4);
+
+                    // If the line is longer than the region width, perform wrapping
+                    if (line.Length > regionWidth)
+                    {
+                        for (int i = 0; i < line.Length; i += regionWidth)
+                        {
+                            int segmentLength = Math.Min(regionWidth, line.Length - i);
+                            var segment = line.Substring(i, segmentLength);
+                            formattedLines.Add((entry.Color, segment.PadRight(regionWidth)));
+                        }
+                    }
+                    else
+                    {
+                        formattedLines.Add((entry.Color, line.PadRight(regionWidth)));
+                    }
+                }
+            }
+
+            // Display only the last regionHeight lines
+            int startLine = Math.Max(0, formattedLines.Count - regionHeight);
+            int displayLine = 0;
+            for (int i = startLine; i < formattedLines.Count && displayLine < regionHeight; i++)
+            {
+                var (color, lineText) = formattedLines[i];
+                Console.SetCursorPosition(regionX, displayLine);
+                Console.ForegroundColor = color;
+                Console.Write(lineText);
+                displayLine++;
             }
             Console.ResetColor();
         }

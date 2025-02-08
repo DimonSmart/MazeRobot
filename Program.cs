@@ -28,19 +28,10 @@ namespace MazeRobot
             services.AddSingleton<IMyService, MyService>();
 
             var provider = services.BuildServiceProvider();
-
             var logger = provider.GetRequiredService<ILogger<Program>>();
             var myService = provider.GetRequiredService<IMyService>();
 
-            logger.LogInformation("Kernel and services are initialized via DI.");
-
-            // Read user command from the console
-            Console.WriteLine("Enter command for the robot (or chat):");
-            var command = Console.ReadLine() ?? string.Empty;
-
-            var result = await myService.DoWork(command);
-            Console.WriteLine("Response:");
-            Console.WriteLine(result);
+            await myService.DoWork();
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();

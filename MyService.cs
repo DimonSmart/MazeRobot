@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 
 namespace MazeRobot
@@ -15,9 +17,8 @@ namespace MazeRobot
             _kernel = kernel;
         }
 
-        public async Task<string> DoWork(string command)
+        public async Task DoWork()
         {
-            _logger.LogInformation("Processing command: {command}", command);
 
             string systemPrompt = @"
 You are a chatbot capable of controlling a robot in a maze.
@@ -37,15 +38,31 @@ In the grid:
 Once a cell is discovered, it remains visible permanently.
 ";
 
-            // Combine system prompt with the user's command.
-            string prompt = $"{systemPrompt}\nUser: {command}\nChatbot:";
-
             // Call the semantic kernel to process the prompt.
             // (Assuming _kernel.RunAsync(string) returns the generated response.)
             // Assuming _kernel is an instance of Kernel
-            var result = await _kernel.InvokePromptAsync(prompt);
-            string response = result.ToString();
-            return response;
+
+            var chatCompletionService = _kernel.GetRequiredService<IChatCompletionService>();
+
+            ChatHistory chatHistory = [];
+            string? input = null;
+            while (true)
+            {
+                Console.Write("\nUser > ");
+                input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    // Leaves if the user hit enter without typing any word
+                    break;
+                }
+                chatHistory.AddUserMessage(input);
+                var chatResult = await chatCompletionService
+                 .GetChatMessageContentAsync(chatHistory, new PromptExecutionSettings
+                 {
+                     FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+                 }, _kernel);
+                Console.Write($"\nAssistant > {chatResult}\n");
+            }
         }
     }
 }
