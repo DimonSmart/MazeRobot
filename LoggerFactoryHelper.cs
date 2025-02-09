@@ -6,7 +6,7 @@ namespace MazeRobot
     {
         public static ILoggerFactory CreateLoggerFactory()
         {
-            return Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+            return LoggerFactory.Create(builder =>
             {
                 builder.ClearProviders();
                 builder.AddProvider(new RegionLoggerProvider());

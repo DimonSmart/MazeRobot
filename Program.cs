@@ -17,11 +17,14 @@ namespace MazeRobot
                 builder.SetMinimumLevel(LogLevel.Trace);
             });
 
+            var mazePlotter = new MazeConsolePlotter();
+            services.AddSingleton(mazePlotter);
+
             // Register the Semantic Kernel via a factory that uses DI logger
             services.AddSingleton(sp =>
             {
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-                return KernelFactory.BuildKernel(loggerFactory);
+                return KernelFactory.BuildKernel(loggerFactory, mazePlotter);
             });
 
             // Register your application service

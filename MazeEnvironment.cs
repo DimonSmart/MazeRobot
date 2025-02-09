@@ -1,7 +1,6 @@
 ﻿using DimonSmart.MazeGenerator;
-using MazeRobot; // Подключение пакета для генерации лабиринта
 
-namespace MazeDemo
+namespace MazeRobot
 {
     public class MazeEnvironment
     {

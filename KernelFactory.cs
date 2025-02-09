@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.AI;
+﻿using DimonSmart.MazeGenerator;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,7 +13,7 @@ namespace MazeRobot
         public const int XSize = 20;
         public const int YSize = 10;
 
-        public static Kernel BuildKernel(ILoggerFactory loggerFactory)
+        public static Kernel BuildKernel(ILoggerFactory loggerFactory, MazeConsolePlotter mazeConsolePlotter)
         {
             // Build configuration
             var configuration = new ConfigurationBuilder()
@@ -50,28 +50,19 @@ namespace MazeRobot
                 logging.SetMinimumLevel(LogLevel.Trace);
             });
 
-            // Example: register other services (maze, robot, etc.)
-            // var maze = new Maze<Cell>(XSize, YSize);
-            // ... additional registrations ...
 
-            // Register a dummy service for demonstration
+            builder.Services.AddSingleton<MazeConsolePlotter>(mazeConsolePlotter);
             builder.Services.AddSingleton<IMyService, MyService>();
+            var maze = new Maze<Cell>(9, 9);
+            new MazeBuilder(maze, new MazeBuildOptions(0, 0)).Build(mazeConsolePlotter);
+            var robot = new Robot(maze, 1, 1);
+            var mazeEnvironment = new MazeEnvironment(maze, robot);
+            builder.Services.AddSingleton(mazeEnvironment);
             builder.Plugins.AddFromType<TimeInformationPlugin>();
-
+            builder.Plugins.AddFromType<MazeWalkerRobotPlugin>("MazeWalkerRobotPlugin");
             var kernel = builder.Build();
-
-            // Retrieve the MazeRobotFunctions service and import it as a skill
-            var robotFunctions = kernel.Services.GetService<MazeRobotFunctions>();
-            // If you see 'ImportSkillFromInstance' is missing, use 'ImportSkill' or 'ImportFunctions'
-            // kernel.ImportPluginFromFunctions(robotFunctions, skillName: "MazeRobot");
-
-            // Create a plugin from a class that contains kernel functions
-            // var timeInformationPlugin = KernelPluginFactory.CreateFromType<TimeInformationPlugin>("TimeInformation");
-            // kernel.Plugins.AddFromObject(timeInformationPlugin);
 
             return kernel;
         }
     }
-
-
 }

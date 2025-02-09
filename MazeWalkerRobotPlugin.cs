@@ -1,14 +1,13 @@
-﻿using MazeDemo;
-using Microsoft.SemanticKernel;
+﻿using Microsoft.SemanticKernel;
 using System.ComponentModel;
 
 namespace MazeRobot
 {
-    public class MazeRobotFunctions
+    public class MazeWalkerRobotPlugin
     {
         private readonly MazeEnvironment _env;
 
-        public MazeRobotFunctions(MazeEnvironment env)
+        public MazeWalkerRobotPlugin(MazeEnvironment env)
         {
             _env = env;
         }
@@ -18,12 +17,12 @@ namespace MazeRobot
         public async Task<string> LookAroundAsync(KernelArguments context)
         {
             _env.Robot.LookAround();
-            return _env.Maze.MakeDiscoveredMazePartView();
+            return _env.MakeDiscoveredMazePartView();
         }
 
         [KernelFunction("MoveRight")]
         [Description("Attempts to move the robot one cell to the right (increases X by 1). Returns the robot's updated coordinates.")]
-        public async Task<string> MoveRightAsync(KernelArguments context)
+        public string MoveRight(KernelArguments context)
         {
             _env.Robot.MoveRight();
             return $"Robot moved to ({_env.Robot.X}, {_env.Robot.Y}).";
@@ -37,19 +36,19 @@ namespace MazeRobot
             return $"Robot moved to ({_env.Robot.X}, {_env.Robot.Y}).";
         }
 
-        [KernelFunction("MoveForward")]
-        [Description("Attempts to move the robot one cell forward (decreases Y by 1). Returns the robot's updated coordinates.")]
-        public async Task<string> MoveForwardAsync(KernelArguments context)
+        [KernelFunction("MoveDown")]
+        [Description("Attempts to move the robot one cell Down (decreases Y by 1). Returns the robot's updated coordinates.")]
+        public async Task<string> MoveDownAsync(KernelArguments context)
         {
-            _env.Robot.MoveForward();
+            _env.Robot.MoveDown();
             return $"Robot moved to ({_env.Robot.X}, {_env.Robot.Y}).";
         }
 
-        [KernelFunction("MoveBackward")]
-        [Description("Attempts to move the robot one cell backward (increases Y by 1). Returns the robot's updated coordinates.")]
-        public async Task<string> MoveBackwardAsync(KernelArguments context)
+        [KernelFunction("MoveUp")]
+        [Description("Attempts to move the robot one cell Up (increases Y by 1). Returns the robot's updated coordinates.")]
+        public async Task<string> MoveUpAsync(KernelArguments context)
         {
-            _env.Robot.MoveBackward();
+            _env.Robot.MoveUp();
             return $"Robot moved to ({_env.Robot.X}, {_env.Robot.Y}).";
         }
     }

@@ -9,11 +9,13 @@ namespace MazeRobot
     public class MyService : IMyService
     {
         private readonly ILogger<MyService> _logger;
+        private readonly MazeConsolePlotter _plotter;
         private readonly Kernel _kernel;
 
-        public MyService(ILogger<MyService> logger, Kernel kernel)
+        public MyService(ILogger<MyService> logger, MazeConsolePlotter plotter, Kernel kernel)
         {
             _logger = logger;
+            _plotter = plotter;
             _kernel = kernel;
         }
 
@@ -22,19 +24,16 @@ namespace MazeRobot
 
             string systemPrompt = @"
 You are a chatbot capable of controlling a robot in a maze.
-The robot understands and can execute the following commands: move forward, move backward, move left, and move right.
-For simplicity, assume that:
- - Moving right increases the X-coordinate by 1 (X = X + 1).
- - Moving forward decreases the Y-coordinate by 1 (Y = Y - 1).
- - Moving backward increases the Y-coordinate by 1 (Y = Y + 1).
+The robot understands and can execute the following commands: move up, down, left, right.
 The robot cannot pass through walls.
-When issued the 'look around' command, the robot surveys the 3x3 grid centered on itself.
+When issued the 'look around' command, the robot look around for 1 cell.
+
 In the grid:
   '?' indicates an unexplored cell.
-  'X' indicates a wall.
+  '#' indicates a wall.
   '_' indicates an open passage.
-  'Robot' indicates the robot's current position.
-  Any discovered object (e.g., 'apple') is labeled with its name.
+  'R' indicates the robot's current position.
+  Any discovered object (e.g., 'apple') is labeled with its letter 'A' for apple.
 Once a cell is discovered, it remains visible permanently.
 ";
 
@@ -45,6 +44,7 @@ Once a cell is discovered, it remains visible permanently.
             var chatCompletionService = _kernel.GetRequiredService<IChatCompletionService>();
 
             ChatHistory chatHistory = [];
+            chatHistory.AddSystemMessage(systemPrompt);
             string? input = null;
             while (true)
             {

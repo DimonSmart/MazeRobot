@@ -1,7 +1,6 @@
 ﻿using DimonSmart.MazeGenerator;
-using MazeRobot; // Подключение пакета для генерации лабиринта
 
-namespace MazeDemo
+namespace MazeRobot
 {
     // Class representing a robot that moves through the maze
     public class Robot
@@ -19,7 +18,7 @@ namespace MazeDemo
             Y = startY;
         }
 
-        public void MoveForward()
+        public void MoveUp()
         {
             if (CanMoveTo(X, Y - 1))
             {
@@ -40,7 +39,7 @@ namespace MazeDemo
                 X = X + 1;
             }
         }
-        public void MoveBackward()
+        public void MoveDown()
         {
             if (CanMoveTo(X, Y + 1))
             {
@@ -65,7 +64,7 @@ namespace MazeDemo
                 }
             }
         }
-       
+
         private bool CanMoveTo(int newX, int newY)
         {
             if (!Maze.AreCoordinatesValid(newX, newY))
