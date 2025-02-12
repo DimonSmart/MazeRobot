@@ -1,4 +1,5 @@
 ﻿using DimonSmart.MazeGenerator;
+using MazeRobot.Cache;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -60,7 +61,15 @@ namespace MazeRobot
             builder.Services.AddSingleton(mazeEnvironment);
             builder.Plugins.AddFromType<TimeInformationPlugin>();
             builder.Plugins.AddFromType<MazeWalkerRobotPlugin>("MazeWalkerRobotPlugin");
+
+
+            string cacheDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DiskCache");
+            var diskCache = new DiskCache(cacheDirectory);
+            builder.Services.AddSingleton(diskCache);
+
             var kernel = builder.Build();
+            kernel.PromptRenderFilters.Add(new DiskPromptCacheFilter(diskCache));
+            kernel.FunctionInvocationFilters.Add(new DiskFunctionCacheFilter(diskCache));
 
             return kernel;
         }

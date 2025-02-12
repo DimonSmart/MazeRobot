@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MazeRobot.Cache;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace MazeRobot
@@ -7,6 +8,11 @@ namespace MazeRobot
     {
         static async Task Main(string[] args)
         {
+            var cacheDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DiskCache");
+            var diskCache = new DiskCache(cacheDirectory);
+
+
+
             var services = new ServiceCollection();
 
             // Configure logging

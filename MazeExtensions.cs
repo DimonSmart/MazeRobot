@@ -65,11 +65,9 @@ namespace MazeRobot
             if (robot != null && x == robot.X && y == robot.Y)
                 return 'R';
 
-            // Если ячейка ещё не открыта, возвращаем пробел (можно заменить на другой символ)
             if (!cell.Discovered)
                 return '?';
 
-            // Если ячейка обнаружена, возвращаем '#' для стены и '_' для прохода
             return cell.IsWall() ? '#' : '_';
         }
     }
